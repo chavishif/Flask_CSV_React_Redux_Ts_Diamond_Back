@@ -73,17 +73,17 @@ def color_price_avg():
 @app.route("/add", methods=['POST'])
 def add_diamond():
     data = request.get_json()
-    diamonds = pd.read_csv(CSV_FILE)
-    last_row = diamonds.tail(1)
+    global df
+    last_row = df.tail(1)
     last_id = int(last_row.ID)
     new_id = last_id + 1
     data["ID"] = new_id
     # ignore_index - a parameter in Pandas DataFrame.append method that ignore the original indices 
     # and reset the indices of the resulting DataFrame to be a range from 0 to n-1(n = count rows)
-    diamonds = diamonds.append(data, ignore_index=True)
+    df = df.append(data, ignore_index=True)
     # drops the rows with missing values (NaN) in the df and the changes are made in place (inplace=True)
-    diamonds.dropna(inplace=True)
-    diamonds.to_csv(CSV_FILE, index=False)
+    df.dropna(inplace=True)
+    df.to_csv(CSV_FILE, index=False)
     return data
 
 
@@ -106,7 +106,7 @@ def update_diamond():
 
 @app.route("/del_diamond/<int:id>", methods=['DELETE'])
 def delete_diamond(id):
-    df = pd.read_csv(CSV_FILE)
+    global df 
     df = df[df.ID != id]
     df.to_csv(CSV_FILE, index=False)
     return jsonify({"message": "Diamond with id {} deleted.".format(id)})
